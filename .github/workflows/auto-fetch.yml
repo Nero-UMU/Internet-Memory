@@ -2,23 +2,22 @@ name: Auto Fetch Tieba Hot Topics
 
 on:
   schedule:
-    - cron: '0 0,8,16 * * *'   # 每天 0/8/16 点（UTC）运行一次
+    - cron: '0 0,8,16 * * *'
   workflow_dispatch:
 
 jobs:
   run-fetch:
     runs-on: ubuntu-latest
-    
-    # 添加必要的权限
+
     permissions:
-      contents: write  # 允许工作流向仓库推送内容
+      contents: write
 
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: true  # 保持认证信息
-          fetch-depth: 0  # 获取完整历史记录
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5

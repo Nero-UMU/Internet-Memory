@@ -1,6 +1,7 @@
 import requests
 import time
 import os
+from datetime import datetime, timedelta, timezone
 
 def fetch_tieba_topic():
     os.makedirs("tieba", exist_ok=True)
@@ -18,7 +19,11 @@ def fetch_tieba_topic():
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             res = response.json()
-            markdown_name = 'tieba/{}.md'.format(time.strftime('%Y-%m-%d_%H.%M', time.localtime()))
+            beijing_tz = timezone(timedelta(hours=8))
+            now = datetime.now(beijing_tz)
+            filename = now.strftime('%Y-%m-%d_%H.%M')
+            markdown_name = f'tieba/{filename}.md'
+
             markdown = ''
             topic_list = res['data']['bang_topic']['topic_list']
             for i, topic in enumerate(topic_list):
@@ -26,11 +31,14 @@ def fetch_tieba_topic():
                 abstract = topic['abstract']
                 discuss_num = topic['discuss_num']
                 create_time = topic['create_time']
-                markdown += '# {}.{}  \n{}  \n讨论数：{}  \n话题创建时间：{}\n\n'.format(i + 1, topic_name, abstract, discuss_num, time.strftime('%Y-%m-%d %H:%M', time.localtime(create_time)))
+                topic_time = datetime.fromtimestamp(create_time, beijing_tz).strftime('%Y-%m-%d %H:%M')
+                markdown += f'# {i + 1}.{topic_name}  \n{abstract}  \n讨论数：{discuss_num}  \n话题创建时间：{topic_time}\n\n'
+
             with open(markdown_name, 'w', encoding='utf-8') as f:
                 f.write(markdown)
             break
         else:
             time.sleep(5)
             continue
+
 fetch_tieba_topic()
