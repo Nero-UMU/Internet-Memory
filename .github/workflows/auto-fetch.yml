@@ -2,7 +2,7 @@ name: Auto Fetch Tieba Hot Topics
 
 on:
   schedule:
-    - cron: '0 0,8,16 * * *'
+    - cron: '0 0,8,16 * * *'   # 每天 0/8/16 点（UTC）运行一次
   workflow_dispatch:
 
 jobs:
@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,10 +32,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
           if [ -n "$(git status --porcelain)" ]; then
             git add tieba/
             git commit -m "自动更新贴吧热榜：$(date '+%Y-%m-%d %H:%M:%S')"
-            git push
+            git push origin HEAD:${{ github.ref_name }}
           else
             echo "No changes to commit."
           fi
