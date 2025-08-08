@@ -3,7 +3,7 @@ name: Auto Fetch Tieba Hot Topics
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 0,8,16 * * *'
   push:
     branches:
       - main
