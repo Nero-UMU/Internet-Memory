@@ -8,13 +8,17 @@ on:
 jobs:
   run-fetch:
     runs-on: ubuntu-latest
+    
+    # 添加必要的权限
+    permissions:
+      contents: write  # 允许工作流向仓库推送内容
 
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
-          fetch-depth: 0
+          persist-credentials: true  # 保持认证信息
+          fetch-depth: 0  # 获取完整历史记录
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,12 +36,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # 使用正确的远程URL格式
+          git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
 
           if [ -n "$(git status --porcelain)" ]; then
             git add tieba/
             git commit -m "自动更新贴吧热榜：$(date '+%Y-%m-%d %H:%M:%S')"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:$GITHUB_REF_NAME
           else
             echo "No changes to commit."
           fi
