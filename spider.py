@@ -4,7 +4,6 @@ import os
 from datetime import datetime, timedelta, timezone
 
 def fetch_tieba_topic():
-    os.makedirs("tieba", exist_ok=True)
     url = 'https://tieba.baidu.com/hottopic/browse/topicList'
 
     headers = {
@@ -21,8 +20,10 @@ def fetch_tieba_topic():
             res = response.json()
             beijing_tz = timezone(timedelta(hours=8))
             now = datetime.now(beijing_tz)
+            output_dir = os.path.join("tieba", now.strftime('%Y'), now.strftime('%m'))
+            os.makedirs(output_dir, exist_ok=True)
             filename = now.strftime('%Y-%m-%d_%H.%M')
-            markdown_name = f'tieba/{filename}.md'
+            markdown_name = os.path.join(output_dir, f'{filename}.md')
 
             markdown = ''
             topic_list = res['data']['bang_topic']['topic_list']
